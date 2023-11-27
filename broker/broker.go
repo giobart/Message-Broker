@@ -1,4 +1,4 @@
-package main
+package broker
 
 import (
 	"bytes"
@@ -13,15 +13,15 @@ import (
 )
 
 type Message struct {
-	qos       int
-	message   string
-	topic     string
+	Qos       int
+	Message   string
+	Topic     string
 	heartbeat bool
 }
 
 type MessgageToClient struct {
 	Data  string `json:"data"`
-	Topic string `json:"topic"`
+	Topic string `json:"Topic"`
 }
 
 type topic struct {
@@ -29,9 +29,9 @@ type topic struct {
 }
 
 type Subscriber struct {
-	address string
-	port    string
-	topic   string
+	Address string
+	Port    string
+	Topic   string
 }
 
 type broker struct {
@@ -117,13 +117,13 @@ func (b *broker) worker(workerId int) {
 			log.Default().Printf("Killing worker %d\n", workerId)
 			return
 		case pubMsg := <-b.pubChannel:
-			log.Default().Printf("Worker_%d: Received Pub message for topic %s\n", workerId, pubMsg.topic)
+			log.Default().Printf("Worker_%d: Received Pub Message for Topic %s\n", workerId, pubMsg.Topic)
 
 			//get subscribers list
 			b.subscribedToTopicRwLock.RLock()
 			subscribed := make(map[string]*string)
-			if b.subscribedToTopic[pubMsg.topic] != nil {
-				subscribed = *b.subscribedToTopic[pubMsg.topic]
+			if b.subscribedToTopic[pubMsg.Topic] != nil {
+				subscribed = *b.subscribedToTopic[pubMsg.Topic]
 			}
 			b.subscribedToTopicRwLock.RUnlock()
 
@@ -138,42 +138,42 @@ func (b *broker) worker(workerId int) {
 				} else {
 					// if the subscriber channel does not exist anymore, remove the subscriber from the map
 					b.subscribedToTopicRwLock.Lock()
-					subscribedMap := *b.subscribedToTopic[pubMsg.topic]
+					subscribedMap := *b.subscribedToTopic[pubMsg.Topic]
 					delete(subscribedMap, subscriber)
-					b.subscribedToTopic[pubMsg.topic] = &subscribedMap
+					b.subscribedToTopic[pubMsg.Topic] = &subscribedMap
 				}
 			}
 			b.subscriberRwLock.RUnlock()
 
 		case subMsg := <-b.subChannel:
-			log.Default().Printf("Worker_%d: Received Sub message for topic %s\n", workerId, subMsg.topic)
+			log.Default().Printf("Worker_%d: Received Sub Message for Topic %s\n", workerId, subMsg.Topic)
 
 			// check if this is known otherwise create it
 			b.subscriberRwLock.Lock()
-			msgChan := *b.subscribers[subMsg.address]
+			msgChan := *b.subscribers[subMsg.Address]
 			if msgChan == nil {
 				msgChan = make(chan Message, 10)
-				b.subscribers[subMsg.address] = &msgChan
+				b.subscribers[subMsg.Address] = &msgChan
 				//spawn internal client twin worker
-				go b.clientTwinWorker(msgChan, subMsg.address, subMsg.port)
+				go b.clientTwinWorker(msgChan, subMsg.Address, subMsg.Port)
 			}
 			b.subscriberRwLock.Unlock()
 
-			// add topic subscription
+			// add Topic subscription
 			b.subscribedToTopicRwLock.Lock()
-			subscribersToTopic := *b.subscribedToTopic[subMsg.topic]
+			subscribersToTopic := *b.subscribedToTopic[subMsg.Topic]
 			if subscribersToTopic == nil {
 				subscribersToTopic = make(map[string]*string)
-				b.subscribedToTopic[subMsg.topic] = &subscribersToTopic
+				b.subscribedToTopic[subMsg.Topic] = &subscribersToTopic
 			}
-			if subscribersToTopic[subMsg.address] == nil {
-				subscribersToTopic[subMsg.address] = &subMsg.address
-				b.subscribedToTopic[subMsg.topic] = &subscribersToTopic
+			if subscribersToTopic[subMsg.Address] == nil {
+				subscribersToTopic[subMsg.Address] = &subMsg.Address
+				b.subscribedToTopic[subMsg.Topic] = &subscribersToTopic
 			}
 			b.subscribedToTopicRwLock.Unlock()
 
 		case hartbeatMsg := <-b.heartbeatChannel:
-			log.Default().Printf("Worker_%d: Received Heartbeat message from %s\n", workerId, hartbeatMsg)
+			log.Default().Printf("Worker_%d: Received Heartbeat Message from %s\n", workerId, hartbeatMsg)
 			// send heartbeat to internal worker
 			b.subscriberRwLock.RLock()
 			msgChan := *b.subscribers[hartbeatMsg]
@@ -220,11 +220,11 @@ func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port s
 			}
 
 			jsonData, err := json.Marshal(MessgageToClient{
-				Data:  msg.message,
-				Topic: msg.topic,
+				Data:  msg.Message,
+				Topic: msg.Topic,
 			})
 			if err != nil {
-				log.Default().Printf("ERROR unable to encode message %v \n", msg)
+				log.Default().Printf("ERROR unable to encode Message %v \n", msg)
 			}
 			err = doPost(url, bytes.NewBuffer(jsonData))
 			if err != nil {

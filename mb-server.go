@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"github.com/giobart/Message-Broker/broker"
 	"log"
 	"net/http"
 )
@@ -18,7 +19,7 @@ type SubMessage struct {
 	Port string `json:"port"`
 }
 
-var brokerServer PubSubBroker = GetPubSubBroker()
+var brokerServer broker.PubSubBroker = broker.GetPubSubBroker()
 
 func pub(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -37,11 +38,10 @@ func pub(w http.ResponseWriter, r *http.Request) {
 
 	log.Default().Printf("Publishing message to topic '%s': %s\n", topic, message.Data)
 
-	err = brokerServer.Publish(Message{
-		qos:       message.QoS,
-		message:   message.Data,
-		topic:     topic,
-		heartbeat: false,
+	err = brokerServer.Publish(broker.Message{
+		Qos:     message.QoS,
+		Message: message.Data,
+		Topic:   topic,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
@@ -69,10 +69,10 @@ func sub(w http.ResponseWriter, r *http.Request) {
 
 	log.Default().Printf("Client %s subscribed to %s\n", client, topic)
 
-	err = brokerServer.Subscribe(Subscriber{
-		address: client,
-		topic:   topic,
-		port:    message.Port,
+	err = brokerServer.Subscribe(broker.Subscriber{
+		Address: client,
+		Topic:   topic,
+		Port:    message.Port,
 	})
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
