@@ -22,7 +22,7 @@ func TestPubSub1Topic(t *testing.T) {
 
 	httpmock.RegisterResponder("POST", "http://0.0.0.0:2030/msg",
 		func(req *http.Request) (*http.Response, error) {
-			resp, err := httpmock.NewJsonResponse(200, map[string]interface{}{
+			resp, err := httpmock.NewJsonResponse(http.StatusAccepted, map[string]interface{}{
 				"value": "ok",
 			})
 			TopicMessages += 1
@@ -34,7 +34,7 @@ func TestPubSub1Topic(t *testing.T) {
 		},
 	)
 
-	//Get a broker with 10 workers and subscribe to /test
+	//Get a messageBroker with 10 workers and subscribe to /test
 	mybroker := GetPubSubBroker(WithCustomWorkersNumber(1))
 	err := mybroker.Subscribe(Subscriber{
 		Address: "0.0.0.0",
@@ -83,7 +83,7 @@ func TestPubSub10Topic(t *testing.T) {
 		TopicMessages := 0
 		httpmock.RegisterResponder("POST", fmt.Sprintf("http://0.0.0.%d:2030/msg", i),
 			func(req *http.Request) (*http.Response, error) {
-				resp, err := httpmock.NewJsonResponse(200, map[string]interface{}{
+				resp, err := httpmock.NewJsonResponse(http.StatusAccepted, map[string]interface{}{
 					"value": "ok",
 				})
 				TopicMessages += 1
@@ -96,7 +96,7 @@ func TestPubSub10Topic(t *testing.T) {
 		)
 	}
 
-	//Get a broker with 10 workers and subscribe to /test
+	//Get a messageBroker with 10 workers and subscribe to /test
 	mybroker := GetPubSubBroker(WithCustomWorkersNumber(1))
 	for i := 0; i < nofTopics; i++ {
 		err := mybroker.Subscribe(Subscriber{
@@ -151,7 +151,7 @@ func TestPubSub1Topic10Subscribers(t *testing.T) {
 		TopicMessages := 0
 		httpmock.RegisterResponder("POST", fmt.Sprintf("http://0.0.0.%d:2030/msg", i),
 			func(req *http.Request) (*http.Response, error) {
-				resp, err := httpmock.NewJsonResponse(200, map[string]interface{}{
+				resp, err := httpmock.NewJsonResponse(http.StatusAccepted, map[string]interface{}{
 					"value": "ok",
 				})
 				TopicMessages += 1
@@ -164,7 +164,7 @@ func TestPubSub1Topic10Subscribers(t *testing.T) {
 		)
 	}
 
-	//Get a broker with 10 workers and subscribe to /test
+	//Get a messageBroker with 10 workers and subscribe to /test
 	mybroker := GetPubSubBroker(WithCustomWorkersNumber(1))
 	for i := 0; i < nofSubscribers; i++ {
 		err := mybroker.Subscribe(Subscriber{
@@ -215,7 +215,7 @@ func TestHeartbeat(t *testing.T) {
 
 	httpmock.RegisterResponder("POST", "http://0.0.0.0:2030/msg",
 		func(req *http.Request) (*http.Response, error) {
-			resp, err := httpmock.NewJsonResponse(200, map[string]interface{}{
+			resp, err := httpmock.NewJsonResponse(http.StatusAccepted, map[string]interface{}{
 				"value": "ok",
 			})
 			log.Default().Printf("Received message from topic\n")
@@ -231,12 +231,12 @@ func TestHeartbeat(t *testing.T) {
 				"value": "ok",
 			})
 			receivedHb += 1
-			log.Default().Printf("Received HB response message n.%d from broker\n", receivedHb)
+			log.Default().Printf("Received HB response message n.%d from messageBroker\n", receivedHb)
 			return resp, err
 		},
 	)
 
-	//Get a broker with 10 workers and subscribe to /test
+	//Get a messageBroker with 10 workers and subscribe to /test
 	mybroker := GetPubSubBroker(WithCustomWorkersNumber(1))
 	err := mybroker.Subscribe(Subscriber{
 		Address: "0.0.0.0",

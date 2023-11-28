@@ -34,7 +34,7 @@ type Subscriber struct {
 	Topic   string
 }
 
-type broker struct {
+type messageBroker struct {
 	pubChannel              chan Message
 	subChannel              chan Subscriber
 	heartbeatChannel        chan string
@@ -53,8 +53,18 @@ type PubSubBroker interface {
 	Stop()
 }
 
+// BrokerOptions Functional Borker Options
+type BrokerOptions func(*messageBroker)
+
+// WithCustomWorkersNumber Select the number of background workers to handle messageBroker requests
+func WithCustomWorkersNumber(number int) BrokerOptions {
+	return func(b *messageBroker) {
+		b.workers = number
+	}
+}
+
 func GetPubSubBroker(opts ...BrokerOptions) PubSubBroker {
-	responseBroker := &broker{
+	responseBroker := &messageBroker{
 		pubChannel:              make(chan Message, 100),
 		subChannel:              make(chan Subscriber, 100),
 		subscribers:             make(map[string]*chan Message),
@@ -65,7 +75,7 @@ func GetPubSubBroker(opts ...BrokerOptions) PubSubBroker {
 		subscribedToTopicRwLock: sync.RWMutex{},
 		subscriberRwLock:        sync.RWMutex{},
 	}
-	//add functional arguments to the broker
+	//add functional arguments to the messageBroker
 
 	for _, opt := range opts {
 		opt(responseBroker)
@@ -77,7 +87,7 @@ func GetPubSubBroker(opts ...BrokerOptions) PubSubBroker {
 	return responseBroker
 }
 
-func (b *broker) Publish(msg Message) error {
+func (b *messageBroker) Publish(msg Message) error {
 	if len(b.pubChannel) < cap(b.pubChannel) {
 		b.pubChannel <- msg
 	} else {
@@ -86,7 +96,7 @@ func (b *broker) Publish(msg Message) error {
 	return nil
 }
 
-func (b *broker) Subscribe(sub Subscriber) error {
+func (b *messageBroker) Subscribe(sub Subscriber) error {
 	if len(b.subChannel) < cap(b.subChannel) {
 		b.subChannel <- sub
 	} else {
@@ -95,7 +105,7 @@ func (b *broker) Subscribe(sub Subscriber) error {
 	return nil
 }
 
-func (b *broker) Heartbeat(address string) error {
+func (b *messageBroker) Heartbeat(address string) error {
 	if len(b.heartbeatChannel) < cap(b.heartbeatChannel) {
 		b.heartbeatChannel <- address
 	} else {
@@ -104,13 +114,13 @@ func (b *broker) Heartbeat(address string) error {
 	return nil
 }
 
-func (b *broker) Stop() {
+func (b *messageBroker) Stop() {
 	//kill all the workers
 	for i := 0; i < b.workers; i++ {
 		b.killChan <- true
 	}
 }
-func (b *broker) worker(workerId int) {
+func (b *messageBroker) worker(workerId int) {
 	for {
 		select {
 		case <-b.killChan:
@@ -192,17 +202,7 @@ func (b *broker) worker(workerId int) {
 	}
 }
 
-// BrokerOptions Functional Borker Options
-type BrokerOptions func(*broker)
-
-// WithCustomWorkersNumber Select the number of background workers to handle broker requests
-func WithCustomWorkersNumber(number int) BrokerOptions {
-	return func(b *broker) {
-		b.workers = number
-	}
-}
-
-func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port string) {
+func (b *messageBroker) clientTwinWorker(msgChan <-chan Message, address string, port string) {
 	defer func() {
 		b.subscriberRwLock.Lock()
 		b.subscribers[address] = nil
@@ -212,6 +212,7 @@ func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port s
 		select {
 		case <-time.NewTimer(10 * time.Second).C:
 			//timeout
+			log.Default().Printf("Worker %s disconnected\n", address)
 			return
 		case msg := <-msgChan:
 
@@ -235,7 +236,7 @@ func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port s
 			}
 			err = doPost(url, bytes.NewBuffer(jsonData))
 			if err != nil {
-				log.Default().Printf("ERROR unable to send post data to %s... unsubscribing it \n", fmt.Sprintf("http://%s:%s/hb", address, port))
+				log.Default().Printf("ERROR unable to send post data to %s... unsubscribing it \n", fmt.Sprintf("http://%s:%s/msg", address, port))
 				return
 			}
 
@@ -256,6 +257,10 @@ func doPost(url string, body io.Reader) error {
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
+	}
+
+	if resp.StatusCode != http.StatusAccepted {
+		return errors.New(fmt.Sprintf("Request status code %d", resp.StatusCode))
 	}
 
 	err = resp.Body.Close()
