@@ -129,18 +129,23 @@ func (b *broker) worker(workerId int) {
 
 			//sent notification to subscribers workers
 			b.subscriberRwLock.RLock()
+			log.Default().Printf("Worker_%d: Sending to %d subscribers", workerId, len(subscribed))
 			for subscriber, _ := range subscribed {
 				msgChan := b.subscribers[subscriber]
 				if msgChan != nil {
 					if len(*msgChan) < cap(*msgChan) {
 						*msgChan <- pubMsg
+					} else {
+						log.Default().Printf("Worker_%d: ERROR: Full worker %s channel \n", workerId, subscriber)
 					}
 				} else {
+					log.Default().Printf("Worker_%d: ERROR: No Subscribers for %s channel \n", workerId, subscriber)
 					// if the subscriber channel does not exist anymore, remove the subscriber from the map
 					b.subscribedToTopicRwLock.Lock()
 					subscribedMap := *b.subscribedToTopic[pubMsg.Topic]
 					delete(subscribedMap, subscriber)
 					b.subscribedToTopic[pubMsg.Topic] = &subscribedMap
+					b.subscribedToTopicRwLock.Unlock()
 				}
 			}
 			b.subscriberRwLock.RUnlock()
@@ -150,25 +155,27 @@ func (b *broker) worker(workerId int) {
 
 			// check if this is known otherwise create it
 			b.subscriberRwLock.Lock()
-			msgChan := *b.subscribers[subMsg.Address]
+			msgChan := b.subscribers[subMsg.Address]
 			if msgChan == nil {
-				msgChan = make(chan Message, 10)
-				b.subscribers[subMsg.Address] = &msgChan
+				newMsgChan := make(chan Message, 10)
+				b.subscribers[subMsg.Address] = &newMsgChan
 				//spawn internal client twin worker
-				go b.clientTwinWorker(msgChan, subMsg.Address, subMsg.Port)
+				go b.clientTwinWorker(newMsgChan, subMsg.Address, subMsg.Port)
 			}
 			b.subscriberRwLock.Unlock()
 
 			// add Topic subscription
 			b.subscribedToTopicRwLock.Lock()
-			subscribersToTopic := *b.subscribedToTopic[subMsg.Topic]
+			subscribersToTopic := b.subscribedToTopic[subMsg.Topic]
 			if subscribersToTopic == nil {
-				subscribersToTopic = make(map[string]*string)
-				b.subscribedToTopic[subMsg.Topic] = &subscribersToTopic
+				newSubscribersToTopic := make(map[string]*string)
+				b.subscribedToTopic[subMsg.Topic] = &newSubscribersToTopic
+				subscribersToTopic = &newSubscribersToTopic
 			}
-			if subscribersToTopic[subMsg.Address] == nil {
-				subscribersToTopic[subMsg.Address] = &subMsg.Address
-				b.subscribedToTopic[subMsg.Topic] = &subscribersToTopic
+			subscribersToTopicMap := *subscribersToTopic
+			if subscribersToTopicMap[subMsg.Address] == nil {
+				subscribersToTopicMap[subMsg.Address] = &subMsg.Address
+				b.subscribedToTopic[subMsg.Topic] = &subscribersToTopicMap
 			}
 			b.subscribedToTopicRwLock.Unlock()
 
@@ -176,9 +183,9 @@ func (b *broker) worker(workerId int) {
 			log.Default().Printf("Worker_%d: Received Heartbeat Message from %s\n", workerId, hartbeatMsg)
 			// send heartbeat to internal worker
 			b.subscriberRwLock.RLock()
-			msgChan := *b.subscribers[hartbeatMsg]
+			msgChan := b.subscribers[hartbeatMsg]
 			if msgChan != nil {
-				msgChan <- Message{heartbeat: true}
+				*msgChan <- Message{heartbeat: true}
 			}
 			b.subscriberRwLock.RUnlock()
 		}
@@ -207,10 +214,10 @@ func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port s
 			//timeout
 			return
 		case msg := <-msgChan:
-			url := fmt.Sprintf("http://%s:%s/hb", address, port)
 
-			//if hearbeat just send hearbeat response
+			//if heartbeat just send heartbeat response
 			if msg.heartbeat {
+				url := fmt.Sprintf("http://%s:%s/hb", address, port)
 				err := doPost(url, nil)
 				if err != nil {
 					log.Default().Printf("ERROR unable to finalize heartbeat for %s \n", fmt.Sprintf("http://%s:%s/hb", address, port))
@@ -218,7 +225,7 @@ func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port s
 				}
 				continue
 			}
-
+			url := fmt.Sprintf("http://%s:%s/msg", address, port)
 			jsonData, err := json.Marshal(MessgageToClient{
 				Data:  msg.Message,
 				Topic: msg.Topic,
@@ -239,7 +246,7 @@ func (b *broker) clientTwinWorker(msgChan <-chan Message, address string, port s
 
 func doPost(url string, body io.Reader) error {
 	client := http.Client{
-		Timeout: 1 * time.Second,
+		Timeout: 500 * time.Millisecond,
 	}
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
