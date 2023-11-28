@@ -4,9 +4,10 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/giobart/Message-Broker/broker"
+	"github.com/giobart/Message-Broker/pkg/broker"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type PubMessage struct {
@@ -57,7 +58,8 @@ func sub(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topic := r.URL.Path[len("/sub/"):]
-	client := r.RemoteAddr
+	strings.Split(r.RemoteAddr, ":")
+	client := strings.Split(r.RemoteAddr, ":")[0]
 
 	var message SubMessage
 	err := json.NewDecoder(r.Body).Decode(&message)
@@ -87,7 +89,7 @@ func heartbeat(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
 
-	err := brokerServer.Heartbeat(r.RemoteAddr)
+	err := brokerServer.Heartbeat(strings.Split(r.RemoteAddr, ":")[0])
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
@@ -97,15 +99,15 @@ func heartbeat(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	port := flag.String("p", "8020", "Listen port, default value 8020.")
+	port := flag.String("p", "9999", "Listen port, default value 8020.")
 
 	http.HandleFunc("/pub/", pub)
 	http.HandleFunc("/sub/", sub)
-	http.HandleFunc("/heartbeat", heartbeat)
+	http.HandleFunc("/hb", heartbeat)
 
 	log.Default().Printf("Listening on port %s", *port)
 	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", *port), nil)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
 }
