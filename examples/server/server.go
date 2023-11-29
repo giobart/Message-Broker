@@ -101,6 +101,7 @@ func heartbeat(w http.ResponseWriter, r *http.Request) {
 func main() {
 	port := flag.String("p", "9999", "Listen port, default value 8020.")
 	workers := flag.Int("w", 1, "Number of parallel works in work pool, default 1.")
+	flag.Parse()
 
 	brokerServer = broker.GetPubSubBroker(broker.WithCustomWorkersNumber(*workers))
 
