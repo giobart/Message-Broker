@@ -6,12 +6,10 @@ COPY go.mod go.sum ./
 
 RUN go mod download
 
-RUN go get github.com/giobart/Message-Broker/pkg/broker
+COPY . ./
 
-COPY examples/server/server.go ./
-
-RUN CGO_ENABLED=0 go build -o /server
+RUN go build -o /server github.com/giobart/message-broker/examples/server
 
 EXPOSE 9999
 
-CMD ["/server -p 9999"]
+CMD ["sh","-c","/server -p 9999"]
