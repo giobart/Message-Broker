@@ -21,7 +21,22 @@ When running the container, by default, the server will listen on port `9999`
 
 ### Build your Unikraft unikernel
 
-Stay tuned, guide coming soon.
+Make sure you have [kraft](https://github.com/unikraft/kraft) intstalled first.
+
+Then, configure the application
+```shell
+kraft configure
+```
+
+Build the application
+```shell
+kraft build
+```
+
+Run the application
+```shell
+kraft run -M 512
+```
 
 ### From source
 

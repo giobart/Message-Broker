@@ -1,0 +1,3 @@
+$(eval $(call addgoapp,appmessagebroker))
+
+APPMESSAGEBROKER_SRCS-y += $(APPMESSAGEBROKER_BASE)/examples/server/server.go
