@@ -1,0 +1,39 @@
+specification: '0.6'
+name: messagebroker
+unikraft:
+  version: '0.6'
+  kconfig:
+    - CONFIG_LIBSYSCALL_SHIM_LIBCSTUBS=y
+    - CONFIG_LIBPOSIX_MMAP=y
+    - CONFIG_LIBUKSCHED=y
+    - CONFIG_LIBUKSCHEDCOOP=y
+    - CONFIG_STACK_SIZE_PAGE_ORDER=5
+targets:
+  - architecture: x86_64
+    platform: kvm
+libraries:
+  gcc:
+    version: stable
+  libgo:
+    version: stable
+  pthread-embedded:
+    version: stable
+  lwip:
+    version: stable
+  compiler-rt:
+    version: stable
+  libcxx:
+    version: stable
+  libcxxabi:
+    version: stable
+  libunwind:
+    version: stable
+  libucontext:
+    version: stable
+  newlib:
+    version: stable
+  musl:
+    version: stable
+  ukp-bin:
+    source: https://github.com/unikraft-io/lib-ukp-bin
+    version: stable
