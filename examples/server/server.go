@@ -20,7 +20,7 @@ type SubMessage struct {
 	Port string `json:"port"`
 }
 
-var brokerServer broker.PubSubBroker = broker.GetPubSubBroker()
+var brokerServer broker.PubSubBroker
 
 func pub(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -100,6 +100,9 @@ func heartbeat(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	port := flag.String("p", "9999", "Listen port, default value 8020.")
+	workers := flag.Int("w", 1, "Number of parallel works in work pool, default 1.")
+
+	brokerServer = broker.GetPubSubBroker(broker.WithCustomWorkersNumber(*workers))
 
 	http.HandleFunc("/pub/", pub)
 	http.HandleFunc("/sub/", sub)

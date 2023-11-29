@@ -65,8 +65,8 @@ func WithCustomWorkersNumber(number int) BrokerOptions {
 
 func GetPubSubBroker(opts ...BrokerOptions) PubSubBroker {
 	responseBroker := &messageBroker{
-		pubChannel:              make(chan Message, 100),
-		subChannel:              make(chan Subscriber, 100),
+		pubChannel:              make(chan Message, 1000),
+		subChannel:              make(chan Subscriber, 1000),
 		subscribers:             make(map[string]*chan Message),
 		subscribedToTopic:       make(map[string]*map[string]*string),
 		heartbeatChannel:        make(chan string, 100),
@@ -127,7 +127,7 @@ func (b *messageBroker) worker(workerId int) {
 			log.Default().Printf("Killing worker %d\n", workerId)
 			return
 		case pubMsg := <-b.pubChannel:
-			log.Default().Printf("Worker_%d: Received Pub Message for Topic %s\n", workerId, pubMsg.Topic)
+			//log.Default().Printf("Worker_%d: Received Pub Message for Topic %s\n", workerId, pubMsg.Topic)
 
 			//get subscribers list
 			b.subscribedToTopicRwLock.RLock()
@@ -139,7 +139,7 @@ func (b *messageBroker) worker(workerId int) {
 
 			//sent notification to subscribers workers
 			b.subscriberRwLock.RLock()
-			log.Default().Printf("Worker_%d: Sending to %d subscribers", workerId, len(subscribed))
+			//log.Default().Printf("Worker_%d: Sending to %d subscribers", workerId, len(subscribed))
 			for subscriber, _ := range subscribed {
 				msgChan := b.subscribers[subscriber]
 				if msgChan != nil {
@@ -161,7 +161,7 @@ func (b *messageBroker) worker(workerId int) {
 			b.subscriberRwLock.RUnlock()
 
 		case subMsg := <-b.subChannel:
-			log.Default().Printf("Worker_%d: Received Sub Message for Topic %s\n", workerId, subMsg.Topic)
+			//log.Default().Printf("Worker_%d: Received Sub Message for Topic %s\n", workerId, subMsg.Topic)
 
 			// check if this is known otherwise create it
 			b.subscriberRwLock.Lock()
@@ -190,7 +190,7 @@ func (b *messageBroker) worker(workerId int) {
 			b.subscribedToTopicRwLock.Unlock()
 
 		case hartbeatMsg := <-b.heartbeatChannel:
-			log.Default().Printf("Worker_%d: Received Heartbeat Message from %s\n", workerId, hartbeatMsg)
+			//log.Default().Printf("Worker_%d: Received Heartbeat Message from %s\n", workerId, hartbeatMsg)
 			// send heartbeat to internal worker
 			b.subscriberRwLock.RLock()
 			msgChan := b.subscribers[hartbeatMsg]
