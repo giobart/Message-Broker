@@ -1,6 +1,8 @@
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/giobart/message-broker v0.0.0-20231129105227-95bf89fb1ae1 h1:B+d5Xqxu7utulB7bitPXLYQeoxc1zpzppre9prlUyac=
-github.com/giobart/message-broker v0.0.0-20231129105227-95bf89fb1ae1/go.mod h1:EK4Z7ctwdvA9F/6Dewkttpx92E8DovDht70ECyvmpM0=
+github.com/giobart/message-broker v0.0.0-20231129125704-0e030cd64a18 h1:uE614coNLBjkfbA/3iY6SnjsIX6h4vqxmLvLGvaoq6k=
+github.com/giobart/message-broker v0.0.0-20231129125704-0e030cd64a18/go.mod h1:5sSrEtBBm0RaQUniVm3bvp/FmbaDVrMdbAC5FBRL0A4=
+github.com/giobart/message-broker v0.0.0-20231129162949-508e61eaaae7 h1:l5X117WQeluxhDKTRLyjLjJNa5rZlH31GeUmV+1kWIg=
+github.com/giobart/message-broker v0.0.0-20231129162949-508e61eaaae7/go.mod h1:5sSrEtBBm0RaQUniVm3bvp/FmbaDVrMdbAC5FBRL0A4=
 github.com/jarcoal/httpmock v1.3.1 h1:iUx3whfZWVf3jT01hQTO/Eo5sAYtB2/rqaUuOtpInww=
 github.com/jarcoal/httpmock v1.3.1/go.mod h1:3yb8rc4BI7TCBhFY8ng0gjuLKJNquuDNiPaZjnENuYg=
 github.com/maxatome/go-testdeep v1.12.0/go.mod h1:lPZc/HAcJMP92l7yI6TRz1aZN5URwUBUAfUNvrclaNM=

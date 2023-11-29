@@ -37,7 +37,7 @@ func pub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Default().Printf("Publishing message to topic '%s': %s\n", topic, message.Data)
+	//log.Default().Printf("Publishing message to topic '%s': %s\n", topic, message.Data)
 
 	err = brokerServer.Publish(broker.Message{
 		Qos:     message.QoS,
@@ -69,7 +69,7 @@ func sub(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Default().Printf("Client %s subscribed to %s\n", client, topic)
+	//log.Default().Printf("Client %s subscribed to %s\n", client, topic)
 
 	err = brokerServer.Subscribe(broker.Subscriber{
 		Address: client,
