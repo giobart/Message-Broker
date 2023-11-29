@@ -14,7 +14,7 @@ Here a guide on how to build a server from source, using docker or using unikern
 
 Build the broker container image using docker CLI and tag the image with a tag of your choice. In this example we'll use `MessageBrokerServer`
 ```shell
-$ docker build . -t MessageBrokerServer
+$ docker build . -t message_broker_server
 ```
 
 When running the container, by default, the server will listen on port `9999`
