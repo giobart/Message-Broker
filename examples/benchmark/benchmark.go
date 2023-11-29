@@ -13,6 +13,7 @@ import (
 
 func main() {
 
+	serverAddress := flag.String("a", "0.0.0.0:9999", "Broker address")
 	pubMessages := flag.Int("m", 10000, "Number of benchmark messages to be sent.")
 	cooldown := flag.Int("c", 1, "Cooldown expressed in nanoseconds between two consectuive messages. Default 0.")
 	flag.Parse()
@@ -24,7 +25,7 @@ func main() {
 	topic := fmt.Sprintf("benchmark/id/%d", benchmarkId)
 
 	//Connect to a broker
-	client := mbclient.GetMessageBrokerClient("0.0.0.0:9999", mbclient.WithCustomListenPort(10000))
+	client := mbclient.GetMessageBrokerClient(*serverAddress, mbclient.WithCustomListenPort(10000))
 
 	//Subscribe to topic with a callback
 	err := client.Subscribe(topic, func(data string, topic string) {
