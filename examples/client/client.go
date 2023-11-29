@@ -1,7 +1,7 @@
 package main
 
 import (
-	mbclient "github.com/giobart/Message-Broker/pkg/client"
+	mbclient "github.com/giobart/message-broker/pkg/client"
 	"log"
 	"time"
 )

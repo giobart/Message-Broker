@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/giobart/Message-Broker/pkg/broker"
+	"github.com/giobart/message-broker/pkg/broker"
 	"log"
 	"net/http"
 	"strings"
