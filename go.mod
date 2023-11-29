@@ -1,4 +1,4 @@
-module github.com/giobart/Message-Broker
+module github.com/giobart/message-broker
 
 go 1.20
 
