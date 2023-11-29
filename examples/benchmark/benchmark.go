@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	mbclient "github.com/giobart/message-broker/pkg/client"
 	"log"
@@ -10,14 +11,13 @@ import (
 	"time"
 )
 
-const (
-	NUMBER_OF_PUB_MESSAGES     = 10000
-	WAIT_TIME_BETWEEN_MESSAGES = 0 * time.Millisecond
-)
-
 func main() {
 
-	receivede2e := make([]int, NUMBER_OF_PUB_MESSAGES)
+	pubMessages := flag.Int("m", 10000, "Number of benchmark messages to be sent.")
+	cooldown := flag.Int("c", 1, "Cooldown expressed in nanoseconds between two consectuive messages. Default 0.")
+	flag.Parse()
+
+	receivede2e := make([]int, *pubMessages)
 
 	rand := rand.New(rand.NewSource(int64(time.Now().Nanosecond())))
 	benchmarkId := rand.Int()
@@ -38,15 +38,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Default().Printf("Sending %d messages\n", NUMBER_OF_PUB_MESSAGES)
+	log.Default().Printf("Sending %d messages\n", *pubMessages)
 	time.Sleep(time.Second * 1)
 	//Publish to topic with a callback
-	for i := 0; i < NUMBER_OF_PUB_MESSAGES; i++ {
+	for i := 0; i < (*pubMessages); i++ {
 		err = client.Publish(fmt.Sprintf("%d,%d", time.Now().Nanosecond(), i), topic)
 		if err != nil {
 			log.Default().Print(err)
 		}
-		time.Sleep(WAIT_TIME_BETWEEN_MESSAGES)
+		time.Sleep(time.Duration((*cooldown)))
 	}
 
 	//Cooldown
@@ -63,5 +63,5 @@ func main() {
 		}
 	}
 
-	log.Default().Printf("TOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns\n", NUMBER_OF_PUB_MESSAGES, received, avgE2E/received)
+	log.Default().Printf("TOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns\n", *pubMessages, received, avgE2E/received)
 }
