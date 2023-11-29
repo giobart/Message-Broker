@@ -167,7 +167,7 @@ func (b *messageBroker) worker(workerId int) {
 			b.subscriberRwLock.Lock()
 			msgChan := b.subscribers[subMsg.Address]
 			if msgChan == nil {
-				newMsgChan := make(chan Message, 10)
+				newMsgChan := make(chan Message, 100)
 				b.subscribers[subMsg.Address] = &newMsgChan
 				//spawn internal client twin worker
 				go b.clientTwinWorker(newMsgChan, subMsg.Address, subMsg.Port)
