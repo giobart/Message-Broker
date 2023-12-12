@@ -64,5 +64,5 @@ func main() {
 		}
 	}
 
-	log.Default().Printf("TOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns\n", *pubMessages, received, avgE2E/received)
+	log.Default().Printf("\nTOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns\n", *pubMessages, received, avgE2E/received)
 }
