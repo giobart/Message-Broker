@@ -1,4 +1,5 @@
 FROM golang:1.16
+LABEL org.opencontainers.image.source https://github.com/giobart/message-broker/message-broker
 
 WORKDIR /app
 

@@ -1,5 +1,5 @@
 FROM golang:1.16
-LABEL org.opencontainers.image.source https://github.com/message-broker/benchmark
+LABEL org.opencontainers.image.source https://github.com/giobart/message-broker/broker-benchmark
 
 WORKDIR /app
 
