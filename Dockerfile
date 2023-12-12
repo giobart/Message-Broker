@@ -8,9 +8,7 @@ RUN go mod download
 
 COPY . ./
 
-RUN go get -u
-
-RUN go build -o /server github.com/giobart/message-broker/examples/server
+RUN go build -o /server examples/server/server.go
 
 EXPOSE 9999
 
