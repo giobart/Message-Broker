@@ -13,7 +13,7 @@
       "bandwidth_in": 0,
       "bandwidth_out": 0,
       "storage": 0,
-      "code": "ghcr.io/giobart/message-broker/message-broker:v1.0",
+      "code": "ghcr.io/giobart/message-broker/message-broker:latest",
       "state": "",
       "addresses": {
         "rr_ip": "10.30.41.40"
@@ -33,7 +33,7 @@
       "bandwidth_in": 0,
       "bandwidth_out": 0,
       "storage": 0,
-      "code": "ghcr.io/giobart/message-broker/broker-benchmark:v1.0",
+      "code": "ghcr.io/giobart/message-broker/broker-benchmark:latest",
       "state": "",
       "added_files": []
     }
