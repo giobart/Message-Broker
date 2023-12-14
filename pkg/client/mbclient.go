@@ -169,7 +169,7 @@ func WithCustomListenPort(port int) MessageBrokerClientOpt {
 
 func doPost(url string, body io.Reader) error {
 	client := http.Client{
-		Timeout: 500 * time.Millisecond,
+		Timeout: 5 * time.Second,
 	}
 	req, err := http.NewRequest("POST", url, body)
 	if err != nil {
