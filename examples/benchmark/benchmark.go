@@ -17,6 +17,7 @@ func main() {
 	serverAddress := flag.String("a", "0.0.0.0:9999", "Broker address")
 	pubMessages := flag.Int("m", 10000, "Number of benchmark messages to be sent.")
 	cooldown := flag.Int("c", 1, "Cooldown expressed in nanoseconds between two consectuive messages. Default 0.")
+	maxExpTime := flag.Int("d", 10, "Max experiment time expressed in seconds, default 10s")
 	flag.Parse()
 
 	receivede2e := make([]int, *pubMessages)
@@ -65,7 +66,7 @@ func main() {
 	//Cooldown
 	log.Default().Printf("Publish finished, waiting for cooldown\n")
 	select {
-	case <-time.After(time.Second * 10):
+	case <-time.After(time.Duration(int(time.Second) * (*maxExpTime))):
 		log.Default().Printf("Cooldown timer finished\n")
 	case <-allReceived:
 		log.Default().Printf("All messages received!\n")
