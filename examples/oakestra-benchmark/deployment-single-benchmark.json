@@ -1,0 +1,41 @@
+{
+  "microservices" : [
+    {
+      "microserviceID": "",
+      "microservice_name": "broker",
+      "microservice_namespace": "test",
+      "virtualization": "container",
+      "cmd": ["sh","-c","/server -p 9999"],
+      "memory": 100,
+      "vcpus": 1,
+      "vgpus": 0,
+      "vtpus": 0,
+      "bandwidth_in": 0,
+      "bandwidth_out": 0,
+      "storage": 0,
+      "code": "ghcr.io/giobart/message-broker/message-broker:latest",
+      "state": "",
+      "addresses": {
+        "rr_ip": "10.30.41.40"
+      },
+      "added_files": []
+    },
+    {
+      "microserviceID": "",
+      "microservice_name": "bench",
+      "microservice_namespace": "test",
+      "virtualization": "container",
+      "cmd": ["sh","-c","./benchmark -a=10.30.41.40:9999 -m=10000"],
+      "memory": 100,
+      "vcpus": 1,
+      "vgpus": 0,
+      "vtpus": 0,
+      "bandwidth_in": 0,
+      "bandwidth_out": 0,
+      "storage": 0,
+      "code": "ghcr.io/giobart/message-broker/broker-benchmark:latest",
+      "state": "",
+      "added_files": []
+    }
+  ]
+}
