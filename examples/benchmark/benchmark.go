@@ -5,6 +5,7 @@ import (
 	"fmt"
 	mbclient "github.com/giobart/message-broker/pkg/client"
 	"log"
+	"math"
 	"math/rand"
 	"strconv"
 	"strings"
@@ -27,12 +28,21 @@ func main() {
 	//Connect to a broker
 	client := mbclient.GetMessageBrokerClient(*serverAddress, mbclient.WithCustomListenPort(10000))
 
+	endTime := time.Now().Nanosecond()
+	allReceived := make(chan bool)
 	//Subscribe to topic with a callback
 	err := client.Subscribe(topic, func(data string, topic string) {
 		dataArray := strings.Split(data, ",")
 		timesent, _ := strconv.Atoi(dataArray[0])
 		seqnum, _ := strconv.Atoi(dataArray[1])
-		receivede2e[seqnum] = time.Now().Nanosecond() - timesent
+		currTime := time.Now().Nanosecond()
+		receivede2e[seqnum] = currTime - timesent
+		if currTime > endTime {
+			endTime = currTime
+		}
+		if seqnum >= len(receivede2e)-1 {
+			allReceived <- true
+		}
 		//log.Default().Printf("E2E: ", data)
 	})
 	if err != nil {
@@ -41,6 +51,8 @@ func main() {
 
 	log.Default().Printf("Sending %d messages\n", *pubMessages)
 	time.Sleep(time.Second * 1)
+	// Start time
+	startTime := time.Now().Nanosecond()
 	//Publish to topic with a callback
 	for i := 0; i < (*pubMessages); i++ {
 		err = client.Publish(fmt.Sprintf("%d,%d", time.Now().Nanosecond(), i), topic)
@@ -52,7 +64,12 @@ func main() {
 
 	//Cooldown
 	log.Default().Printf("Publish finished, waiting for cooldown\n")
-	time.Sleep(time.Second * 5)
+	select {
+	case <-time.After(time.Second * 10):
+		log.Default().Printf("Cooldown timer finished\n")
+	case <-allReceived:
+		log.Default().Printf("All messages received!\n")
+	}
 
 	//Calculate average delay and drop rate
 	avgE2E := 0
@@ -64,5 +81,7 @@ func main() {
 		}
 	}
 
-	log.Default().Printf("\nTOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns\n", *pubMessages, received, avgE2E/received)
+	totTime := endTime - startTime
+
+	log.Default().Printf("\nTOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns, MESSAGES_X_NSEC:%d message/ns, TOT_EXP_TIME:%fms\n", *pubMessages, received, avgE2E/received, totTime/received, float64(totTime)/(math.Pow(10, 6)))
 }
