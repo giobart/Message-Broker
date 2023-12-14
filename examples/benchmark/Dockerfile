@@ -13,4 +13,5 @@ RUN go build -o benchmark
 
 EXPOSE 10000
 
-CMD ["sh","-c","/benchmark -a 0.0.0.0:9999"]
+# 100000 messages, one every 0,01ms for a total of 100ms experiment
+CMD ["sh","-c","./benchmark -a=0.0.0.0:9999 -c=100000 -m=10000"]
