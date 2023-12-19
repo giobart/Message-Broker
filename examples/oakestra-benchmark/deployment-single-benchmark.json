@@ -25,7 +25,7 @@
       "microservice_name": "bench",
       "microservice_namespace": "test",
       "virtualization": "container",
-      "cmd": ["sh","-c","./benchmark -a=10.30.41.40:9999 -m=10000"],
+      "cmd": ["sh","-c","./benchmark -a=10.30.41.40:9999 -c=100 -m=100000"],
       "memory": 100,
       "vcpus": 1,
       "vgpus": 0,

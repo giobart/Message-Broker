@@ -84,5 +84,5 @@ func main() {
 
 	totTime := endTime - startTime
 
-	log.Default().Printf("\nTOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns, MESSAGES_X_NSEC:%d message/ms, TOT_EXP_TIME:%fms\n", *pubMessages, received, avgE2E/received, 1/(float64(totTime)/(math.Pow(10, 6))/float64(received)), float64(totTime)/(math.Pow(10, 6)))
+	log.Default().Printf("\nTOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns, MESSAGES_X_NSEC:%f message/ms, TOT_EXP_TIME:%fms\n", *pubMessages, received, avgE2E/received, 1/(float64(totTime)/(math.Pow(10, 6))/float64(received)), float64(totTime)/(math.Pow(10, 6)))
 }
