@@ -21,23 +21,14 @@ When running the container, by default, the server will listen on port `9999`
 
 ### Build your Unikraft unikernel
 
-Make sure you have [kraft](https://github.com/unikraft/kraft) as well as `gccgo-go` and `golang-go` installed first.
+Make sure you have the latest kraft [pre-release](https://github.com/unikraft/kraftkit/releases/tag/v0.7.1-43-gfdf8d97) as well as [buildkit](https://github.com/moby/buildkit) installed.
 
-Move to the folder `examples/server/` and configure the application using:
+Move to the folder `examples/server/`
 
-```shell
-kraft menu
+Build and run the unikernel using:
+
 ```
-Navigate the menu `Platform Configuration` and hit `Y` to enable KVM guest.
-
-Then, build the application
-```shell
-kraft build
-```
-
-Run the application
-```shell
-kraft run -M 512
+kraft run -p 9999
 ```
 
 ### From source

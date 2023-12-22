@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	mbclient "github.com/giobart/message-broker/pkg/client"
@@ -11,6 +12,15 @@ import (
 	"strings"
 	"time"
 )
+
+type results struct {
+	E2eArr    []int   `json:"e2e_packet_lat"`
+	Sent      int     `json:"sent"`
+	Rcv       int     `json:"rcv"`
+	Avge2e    float64 `json:"avge2e"`
+	MsgxMs    float64 `json:"msgmsec"`
+	ExpTimeMs float64 `json:"exp_time"`
+}
 
 func main() {
 
@@ -84,5 +94,13 @@ func main() {
 
 	totTime := endTime - startTime
 
-	log.Default().Printf("\nTOT_SENT:%d, TOT_RECEIVED:%d, AVG_E2E:%dns, MESSAGES_X_NSEC:%f message/ms, TOT_EXP_TIME:%fms\n", *pubMessages, received, avgE2E/received, 1/(float64(totTime)/(math.Pow(10, 6))/float64(received)), float64(totTime)/(math.Pow(10, 6)))
+	res, _ := json.Marshal(results{
+		E2eArr:    receivede2e,
+		Sent:      *pubMessages,
+		Rcv:       received,
+		Avge2e:    float64(avgE2E / received),
+		MsgxMs:    1 / (float64(totTime) / (math.Pow(10, 6)) / float64(received)),
+		ExpTimeMs: float64(totTime) / (math.Pow(10, 6)),
+	})
+	fmt.Printf("%s\n", string(res))
 }
