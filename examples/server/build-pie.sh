@@ -1,0 +1,1 @@
+go build buildmode=pie -ldflags "-linkmode external -extldflags -static-pie" -tags netgo -o server server.go
