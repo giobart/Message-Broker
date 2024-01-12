@@ -110,8 +110,8 @@ func main() {
 	http.HandleFunc("/sub/", sub)
 	http.HandleFunc("/hb", heartbeat)
 
-	log.Default().Printf("Listening on port %s", port)
-	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%s", port), nil)
+	log.Default().Printf("Listening on port %d", port)
+	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), nil)
 	if err != nil {
 		log.Fatal(err)
 	}
