@@ -6,6 +6,7 @@ import (
 	"github.com/giobart/message-broker/pkg/broker"
 	"log"
 	"net/http"
+	"runtime"
 	"strings"
 )
 
@@ -101,8 +102,9 @@ func main() {
 	//port := flag.String("p", "8020", "Listen port, default value 8020.")
 	//workers := flag.Int("w", 1, "Number of parallel works in work pool, default 1.")
 	//flag.Parse()
+	runtime.GOMAXPROCS(1)
 	port := 9999
-	workers := 5
+	workers := 1
 
 	brokerServer = broker.GetPubSubBroker(broker.WithCustomWorkersNumber(workers))
 
