@@ -1,5 +1,5 @@
 module mbserver
 
-go 1.16
+go 1.21
 
-require github.com/giobart/message-broker v0.0.0-20231214130154-d017b28c4969
+require github.com/giobart/message-broker v1.2.2

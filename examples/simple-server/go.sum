@@ -7,6 +7,10 @@ github.com/giobart/message-broker v0.0.0-20231212100735-30c3b643a712 h1:dgf7ILeM
 github.com/giobart/message-broker v0.0.0-20231212100735-30c3b643a712/go.mod h1:5sSrEtBBm0RaQUniVm3bvp/FmbaDVrMdbAC5FBRL0A4=
 github.com/giobart/message-broker v0.0.0-20231214130154-d017b28c4969 h1:mDySOJUJyFA5Nvmyvd8XoeIAAjL85DCPg/m5Zjbbsd8=
 github.com/giobart/message-broker v0.0.0-20231214130154-d017b28c4969/go.mod h1:5sSrEtBBm0RaQUniVm3bvp/FmbaDVrMdbAC5FBRL0A4=
+github.com/giobart/message-broker v1.2.1 h1:xQC5yA7bTMugI9k3UlJzz82BzEwZ83Yf1KZYKakW8Cw=
+github.com/giobart/message-broker v1.2.1/go.mod h1:5sSrEtBBm0RaQUniVm3bvp/FmbaDVrMdbAC5FBRL0A4=
+github.com/giobart/message-broker v1.2.2 h1:1qqydzJgGd9SL2gK1bpyC4SGOoKByNQ/8aq1OqLiBUE=
+github.com/giobart/message-broker v1.2.2/go.mod h1:5sSrEtBBm0RaQUniVm3bvp/FmbaDVrMdbAC5FBRL0A4=
 github.com/jarcoal/httpmock v1.3.1 h1:iUx3whfZWVf3jT01hQTO/Eo5sAYtB2/rqaUuOtpInww=
 github.com/jarcoal/httpmock v1.3.1/go.mod h1:3yb8rc4BI7TCBhFY8ng0gjuLKJNquuDNiPaZjnENuYg=
 github.com/maxatome/go-testdeep v1.12.0/go.mod h1:lPZc/HAcJMP92l7yI6TRz1aZN5URwUBUAfUNvrclaNM=
