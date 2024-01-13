@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"sync"
 	"time"
@@ -124,7 +123,7 @@ func (b *messageBroker) worker(workerId int) {
 	for {
 		select {
 		case <-b.killChan:
-			log.Default().Printf("Killing worker %d\n", workerId)
+			//log.Default().Printf("Killing worker %d\n", workerId)
 			return
 		case pubMsg := <-b.pubChannel:
 			//log.Default().Printf("Worker_%d: Received Pub Message for Topic %s\n", workerId, pubMsg.Topic)
@@ -146,10 +145,10 @@ func (b *messageBroker) worker(workerId int) {
 					if len(*msgChan) < cap(*msgChan) {
 						*msgChan <- pubMsg
 					} else {
-						log.Default().Printf("Worker_%d: ERROR: Full worker %s channel \n", workerId, subscriber)
+						fmt.Printf("Worker_%d: ERROR: Full worker %s channel \n", workerId, subscriber)
 					}
 				} else {
-					log.Default().Printf("Worker_%d: ERROR: No Subscribers for %s channel \n", workerId, subscriber)
+					fmt.Printf("Worker_%d: ERROR: No Subscribers for %s channel \n", workerId, subscriber)
 					// if the subscriber channel does not exist anymore, remove the subscriber from the map
 					b.subscribedToTopicRwLock.Lock()
 					subscribedMap := *b.subscribedToTopic[pubMsg.Topic]
@@ -161,7 +160,7 @@ func (b *messageBroker) worker(workerId int) {
 			b.subscriberRwLock.RUnlock()
 
 		case subMsg := <-b.subChannel:
-			//log.Default().Printf("Worker_%d: Received Sub Message for Topic %s\n", workerId, subMsg.Topic)
+			//fmt.Printf("Worker_%d: Received Sub Message for Topic %s\n", workerId, subMsg.Topic)
 
 			// check if this is known otherwise create it
 			b.subscriberRwLock.Lock()
@@ -190,7 +189,7 @@ func (b *messageBroker) worker(workerId int) {
 			b.subscribedToTopicRwLock.Unlock()
 
 		case hartbeatMsg := <-b.heartbeatChannel:
-			//log.Default().Printf("Worker_%d: Received Heartbeat Message from %s\n", workerId, hartbeatMsg)
+			//fmt.Printf("Worker_%d: Received Heartbeat Message from %s\n", workerId, hartbeatMsg)
 			// send heartbeat to internal worker
 			b.subscriberRwLock.RLock()
 			msgChan := b.subscribers[hartbeatMsg]
@@ -212,7 +211,7 @@ func (b *messageBroker) clientTwinWorker(msgChan <-chan Message, address string,
 		select {
 		case <-time.NewTimer(10 * time.Second).C:
 			//timeout
-			log.Default().Printf("Worker %s disconnected\n", address)
+			fmt.Printf("Worker %s disconnected\n", address)
 			return
 		case msg := <-msgChan:
 
@@ -221,7 +220,7 @@ func (b *messageBroker) clientTwinWorker(msgChan <-chan Message, address string,
 				url := fmt.Sprintf("http://%s:%s/hb", address, port)
 				err := doPost(url, nil)
 				if err != nil {
-					log.Default().Printf("ERROR unable to finalize heartbeat for %s \n", fmt.Sprintf("http://%s:%s/hb", address, port))
+					fmt.Printf("ERROR unable to finalize heartbeat for %s \n", fmt.Sprintf("http://%s:%s/hb", address, port))
 					return
 				}
 				continue
@@ -232,11 +231,11 @@ func (b *messageBroker) clientTwinWorker(msgChan <-chan Message, address string,
 				Topic: msg.Topic,
 			})
 			if err != nil {
-				log.Default().Printf("ERROR unable to encode Message %v \n", msg)
+				fmt.Printf("ERROR unable to encode Message %v \n", msg)
 			}
 			err = doPost(url, bytes.NewBuffer(jsonData))
 			if err != nil {
-				log.Default().Printf("ERROR unable to send post data to %s... unsubscribing it \n", fmt.Sprintf("http://%s:%s/msg", address, port))
+				fmt.Printf("ERROR unable to send post data to %s... unsubscribing it \n", fmt.Sprintf("http://%s:%s/msg", address, port))
 				return
 			}
 

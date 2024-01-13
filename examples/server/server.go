@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/giobart/message-broker/pkg/broker"
-	"log"
 	"net/http"
 	"runtime"
 	"strings"
@@ -32,7 +31,7 @@ func pub(w http.ResponseWriter, r *http.Request) {
 	var message PubMessage
 	err := json.NewDecoder(r.Body).Decode(&message)
 	if err != nil {
-		log.Default().Printf("ERROR Unable to decode %s", r.URL.String())
+		fmt.Printf("ERROR Unable to decode %s", r.URL.String())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -64,7 +63,7 @@ func sub(w http.ResponseWriter, r *http.Request) {
 	var message SubMessage
 	err := json.NewDecoder(r.Body).Decode(&message)
 	if err != nil {
-		log.Default().Printf("ERROR Unable to decode %s", r.URL.String())
+		fmt.Printf("ERROR Unable to decode %s", r.URL.String())
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -112,9 +111,10 @@ func main() {
 	http.HandleFunc("/sub/", sub)
 	http.HandleFunc("/hb", heartbeat)
 
-	log.Default().Printf("Listening on port %d", port)
-	err := http.ListenAndServe(fmt.Sprintf("0.0.0.0:%d", port), nil)
+	fmt.Printf("Listening on port %d\n", port)
+	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Error %v", err)
+		return
 	}
 }
