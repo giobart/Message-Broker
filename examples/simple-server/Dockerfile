@@ -1,23 +1,16 @@
-FROM golang:1.21.3-bookworm AS build
+FROM golang:1.21
+LABEL org.opencontainers.image.source https://github.com/giobart/message-broker/simple-message-broker
 
-WORKDIR /src
+WORKDIR /app
 
 COPY go.mod go.sum ./
 
 RUN go mod download
 
-COPY ./server.go ./
+COPY . ./
 
-RUN set -xe; \
-    go build \
-     -buildmode=pie \
-      -ldflags "-linkmode external -extldflags -static-pie" \
-      -tags netgo \
-      -o /server server.go \
-    ;
+RUN go build -o /server server.go
 
-FROM scratch
+EXPOSE 9999
 
-COPY --from=build /server /server
-COPY --from=build /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/
-COPY --from=build /lib64/ld-linux-x86-64.so.2 /lib64/
+CMD ["sh","-c","/server"]

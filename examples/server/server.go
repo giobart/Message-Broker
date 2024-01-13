@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"github.com/giobart/message-broker/pkg/broker"
 	"net/http"
@@ -98,21 +99,19 @@ func heartbeat(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
-	//port := flag.String("p", "8020", "Listen port, default value 8020.")
-	//workers := flag.Int("w", 1, "Number of parallel works in work pool, default 1.")
-	//flag.Parse()
+	port := flag.String("p", "9999", "Listen port, default value 9999.")
+	workers := flag.Int("w", 1, "Number of parallel works in work pool, default 1.")
+	flag.Parse()
 	runtime.GOMAXPROCS(1)
-	port := 9999
-	workers := 1
 
-	brokerServer = broker.GetPubSubBroker(broker.WithCustomWorkersNumber(workers))
+	brokerServer = broker.GetPubSubBroker(broker.WithCustomWorkersNumber(*workers))
 
 	http.HandleFunc("/pub/", pub)
 	http.HandleFunc("/sub/", sub)
 	http.HandleFunc("/hb", heartbeat)
 
 	fmt.Printf("Listening on port %d\n", port)
-	err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
+	err := http.ListenAndServe(fmt.Sprintf(":%s", *port), nil)
 	if err != nil {
 		fmt.Printf("Error %v", err)
 		return
