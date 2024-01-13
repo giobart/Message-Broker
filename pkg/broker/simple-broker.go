@@ -26,7 +26,7 @@ func (b *simpleMessageBroker) Publish(msg Message) error {
 
 	//sent notification to subscribers workers
 	//log.Default().Printf("Worker_%d: Sending to %d subscribers", workerId, len(subscribed))
-	for subscriber, _ := range subscribed {
+	for _, subscriber := range subscribed {
 		url := fmt.Sprintf("http://%s/msg", subscriber)
 		jsonData, err := json.Marshal(MessgageToClient{
 			Data:  msg.Message,
