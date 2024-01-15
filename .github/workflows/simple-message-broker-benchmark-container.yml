@@ -1,4 +1,4 @@
-name: Simple Message Broker server
+name: Simple Message Broker Benchmark
 
 on:
   push:
@@ -11,7 +11,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}/simple-message-broker
+  IMAGE_NAME: ${{ github.repository }}/simple-message-broker-benchmark
 
 
 jobs:
@@ -74,7 +74,7 @@ jobs:
         id: build-and-push
         uses: docker/build-push-action@v3
         with:
-          context: ./examples/simple-server/
+          context: ./examples/simple-server-benchmark/
           platforms: linux/amd64,linux/armhf,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
