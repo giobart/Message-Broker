@@ -1,0 +1,20 @@
+specification: '0.5'
+name: server
+unikraft:
+  version: 'stable'
+  kconfig:
+    - CONFIG_LIBSYSCALL_SHIM_LIBCSTUBS=y
+targets:
+  - architecture: x86_64
+    platform: kvm
+libraries:
+  gcc: 'stable'
+  libgo: 'stable'
+  pthread-embedded: 'stable'
+  lwip: 'stable'
+  compiler-rt: 'stable'
+  libcxx: 'stable'
+  libcxxabi: 'stable'
+  libunwind: 'stable'
+  libucontext: 'stable'
+  newlib: 'stable'

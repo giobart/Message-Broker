@@ -1,0 +1,3 @@
+$(eval $(call addlib,appserver))
+
+APPSERVER_SRCS-y += $(APPSERVER_BASE)/server.go
