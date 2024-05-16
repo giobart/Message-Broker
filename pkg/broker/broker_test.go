@@ -2,11 +2,12 @@ package broker
 
 import (
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"log"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func TestPubSub1Topic(t *testing.T) {
@@ -48,7 +49,7 @@ func TestPubSub1Topic(t *testing.T) {
 
 	//Pub 10 messages
 	for i := 0; i < nOfTestMessages; i++ {
-		err = mybroker.Publish(Message{
+		err = mybroker.Publish(&Message{
 			Qos:       0,
 			Message:   "test",
 			Topic:     "test",
@@ -113,7 +114,7 @@ func TestPubSub10Topic(t *testing.T) {
 	//Pub 10 messages for each topic
 	for j := 0; j < nofTopics; j++ {
 		for i := 0; i < nOfTestMessages; i++ {
-			err := mybroker.Publish(Message{
+			err := mybroker.Publish(&Message{
 				Qos:       0,
 				Message:   "test",
 				Topic:     fmt.Sprintf("test%d", j),
@@ -180,7 +181,7 @@ func TestPubSub1Topic10Subscribers(t *testing.T) {
 
 	//Pub 10 messages for topic test
 	for i := 0; i < nOfTestMessages; i++ {
-		err := mybroker.Publish(Message{
+		err := mybroker.Publish(&Message{
 			Qos:       0,
 			Message:   "test",
 			Topic:     "test",
@@ -258,7 +259,7 @@ func TestHeartbeat(t *testing.T) {
 	}
 
 	//check if pub message can be received
-	err = mybroker.Publish(Message{
+	err = mybroker.Publish(&Message{
 		Qos:       0,
 		Message:   "test",
 		Topic:     "test",
@@ -279,7 +280,7 @@ func TestHeartbeat(t *testing.T) {
 	time.Sleep(time.Second * 11)
 
 	//publishing new message. It should fail!
-	err = mybroker.Publish(Message{
+	err = mybroker.Publish(&Message{
 		Qos:       0,
 		Message:   "test",
 		Topic:     "test",
@@ -308,7 +309,7 @@ func TestHeartbeat(t *testing.T) {
 
 	//check if pub message can be received
 	log.Default().Printf("Sending new pub message")
-	err = mybroker.Publish(Message{
+	err = mybroker.Publish(&Message{
 		Qos:       0,
 		Message:   "test",
 		Topic:     "test",

@@ -2,11 +2,12 @@ package broker
 
 import (
 	"fmt"
-	"github.com/jarcoal/httpmock"
 	"log"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/jarcoal/httpmock"
 )
 
 func TestSimplePubSub1Topic(t *testing.T) {
@@ -48,7 +49,7 @@ func TestSimplePubSub1Topic(t *testing.T) {
 
 	//Pub 10 messages
 	for i := 0; i < nOfTestMessages; i++ {
-		err = mybroker.Publish(Message{
+		err = mybroker.Publish(&Message{
 			Qos:       0,
 			Message:   "test",
 			Topic:     "test",
@@ -113,7 +114,7 @@ func TestSimplePubSub10Topic(t *testing.T) {
 	//Pub 10 messages for each topic
 	for j := 0; j < nofTopics; j++ {
 		for i := 0; i < nOfTestMessages; i++ {
-			err := mybroker.Publish(Message{
+			err := mybroker.Publish(&Message{
 				Qos:       0,
 				Message:   "test",
 				Topic:     fmt.Sprintf("test%d", j),

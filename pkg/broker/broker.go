@@ -34,7 +34,7 @@ type Subscriber struct {
 }
 
 type messageBroker struct {
-	pubChannel              chan Message
+	pubChannel              chan *Message
 	subChannel              chan Subscriber
 	heartbeatChannel        chan string
 	subscribers             map[string]*chan Message
@@ -46,7 +46,7 @@ type messageBroker struct {
 }
 
 type PubSubBroker interface {
-	Publish(msg Message) error
+	Publish(msg *Message) error
 	Subscribe(sub Subscriber) error
 	Heartbeat(address string) error
 	Stop()
@@ -64,7 +64,7 @@ func WithCustomWorkersNumber(number int) BrokerOptions {
 
 func GetPubSubBroker(opts ...BrokerOptions) PubSubBroker {
 	responseBroker := &messageBroker{
-		pubChannel:              make(chan Message, 1000),
+		pubChannel:              make(chan *Message, 1000),
 		subChannel:              make(chan Subscriber, 1000),
 		subscribers:             make(map[string]*chan Message),
 		subscribedToTopic:       make(map[string]*map[string]*string),
@@ -86,7 +86,7 @@ func GetPubSubBroker(opts ...BrokerOptions) PubSubBroker {
 	return responseBroker
 }
 
-func (b *messageBroker) Publish(msg Message) error {
+func (b *messageBroker) Publish(msg *Message) error {
 	if len(b.pubChannel) < cap(b.pubChannel) {
 		b.pubChannel <- msg
 	} else {
@@ -143,7 +143,7 @@ func (b *messageBroker) worker(workerId int) {
 				msgChan := b.subscribers[subscriber]
 				if msgChan != nil {
 					if len(*msgChan) < cap(*msgChan) {
-						*msgChan <- pubMsg
+						*msgChan <- *pubMsg
 					} else {
 						fmt.Printf("Worker_%d: ERROR: Full worker %s channel \n", workerId, subscriber)
 					}

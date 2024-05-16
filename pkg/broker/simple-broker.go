@@ -17,21 +17,23 @@ func GetSimplePubSubBroker() PubSubBroker {
 	return responseBroker
 }
 
-func (b *simpleMessageBroker) Publish(msg Message) error {
+func (b *simpleMessageBroker) Publish(msg *Message) error {
 	//get subscribers list
 	subscribed := []string{}
 	if b.subscribedToTopic[msg.Topic] != nil {
 		subscribed = *b.subscribedToTopic[msg.Topic]
 	}
 
+	clientmsg := MessgageToClient{
+		Data:  msg.Message,
+		Topic: msg.Topic,
+	}
+
 	//sent notification to subscribers workers
 	//log.Default().Printf("Worker_%d: Sending to %d subscribers", workerId, len(subscribed))
 	for _, subscriber := range subscribed {
 		url := fmt.Sprintf("http://%s/msg", subscriber)
-		jsonData, err := json.Marshal(MessgageToClient{
-			Data:  msg.Message,
-			Topic: msg.Topic,
-		})
+		jsonData, err := json.Marshal(clientmsg)
 		if err != nil {
 			fmt.Printf("ERROR unable to encode Message %v \n", msg)
 		}
