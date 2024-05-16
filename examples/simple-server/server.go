@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/giobart/message-broker/pkg/broker"
 	"net/http"
 	"strings"
+
+	"github.com/giobart/message-broker/pkg/broker"
 )
 
 type PubMessage struct {
@@ -18,7 +19,15 @@ type SubMessage struct {
 	Port string `json:"port"`
 }
 
+var message PubMessage
+
 var brokerServer broker.PubSubBroker
+
+var brokermsg = broker.Message{
+	Qos:     0,
+	Message: "",
+	Topic:   "",
+}
 
 func pub(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -27,7 +36,6 @@ func pub(w http.ResponseWriter, r *http.Request) {
 
 	topic := r.URL.Path[len("/pub/"):]
 
-	var message PubMessage
 	err := json.NewDecoder(r.Body).Decode(&message)
 	if err != nil {
 		fmt.Printf("ERROR Unable to decode %s", r.URL.String())
@@ -36,12 +44,10 @@ func pub(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//log.Default().Printf("Publishing message to topic '%s': %s\n", topic, message.Data)
+	brokermsg.Message = message.Data
+	brokermsg.Topic = topic
 
-	err = brokerServer.Publish(broker.Message{
-		Qos:     message.QoS,
-		Message: message.Data,
-		Topic:   topic,
-	})
+	err = brokerServer.Publish(&brokermsg)
 	if err != nil {
 		w.WriteHeader(http.StatusServiceUnavailable)
 		return
